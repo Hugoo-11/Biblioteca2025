@@ -132,6 +132,7 @@ public class Biblioteca2025 {
             System.out.println("\t\t\t\t3 - PRROROGAR PRESTAMO");
             System.out.println("\t\t\t\t4 - LISTADOS PRESTAMOS");
             System.out.println("\t\t\t\t5 - LISTADOS PRESTAMOS HISTORICOS");
+            System.out.println("\t\t\t\t6 - LISTADOS PRESTAMOS LIBRO(USUARIOS QUE LO LEEN");
             System.out.println("\t\t\t\t9 - SALIR");
             opcion= sc.nextInt();
             switch(opcion) {
@@ -153,6 +154,10 @@ public class Biblioteca2025 {
                 }
                 case 5: {
                    listaPrestamosUsu();
+                    break;
+                }
+                case 6: {
+                   listaPrestamosLibro();
                     break;
                 }
             }
@@ -265,23 +270,29 @@ public class Biblioteca2025 {
     
     private void nuevoPrestamo() {
         System.out.println("Identificación del usuario:"); 
+        String dni =solicitaDni();
         int posUsuario=buscaDni(solicitaDni());
         if (posUsuario==-1){
             System.out.println("No es aún usuario de la biblioteca");
         } else {// si, se puede hacer el prestamo
             System.out.println("Identificación del libro:");
+            String isbn=solicitaIsbn();
             int posLibro= buscaIsbn(solicitaIsbn());
             if (posLibro==-1) {
                 System.out.println("El ISBN pertenece a un libro inexistente");                
             } else if(libros.get(posLibro).getEjemplares()>0) {//podemos hacer el prestamo, tenemos el usuario y el libro
+               if ((buscaPrestamo(dni,isbn))==-1){
                 LocalDate hoy= LocalDate.now();
                 prestamos.add(new Prestamo(libros.get(posLibro), usuarios.get(posUsuario), hoy, hoy.plusDays(15)));               
                 libros.get(posLibro).setEjemplares(libros.get(posLibro).getEjemplares()-1);
                 } else {
-                    System.out.println("No quedan unidades disponibles del libro");
+                   System.out.println("Ese usuario ya tiene ese mismo libro en prestamo");
                 }
-        }       
+        }       else{
+                System.out.println("No quedan unidades disponibles del libro");
+            }
     }
+ }
 
     private void eliminarPrestamo() {
         System.out.println("Identificación del usuario");
@@ -353,6 +364,29 @@ public class Biblioteca2025 {
             }
         
     }
+    
+    private void listaPrestamosLibro(){
+        String isbn= solicitaIsbn();
+        int pos= buscaIsbn(isbn);
+        if(pos==-1){
+            System.out.println("No tengo ningun libro con ese Isbn");
+        }else{
+            System.out.println("Usuarios que lo estan leyendo: ");
+            for (Prestamo p : prestamos) {
+                if (p.getLibroPrest().getIsbn().equals(isbn)){
+                    System.out.println(p.getUsuarioPrest());
+            }
+            }
+             System.out.println("Usuarios que lo han leido: ");
+            for (Prestamo p : prestamosHist) {
+                if (p.getLibroPrest().getIsbn().equals(isbn)){
+                    System.out.println(p.getUsuarioPrest());
+        }
+    }
+        }
+    }
+            
+        
 //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="METODOS AUXILIARES">
@@ -361,6 +395,12 @@ public class Biblioteca2025 {
      * Método para solicitar por teclado el dni del usuario. Pendiente la validación.
      * @return dni (String) del usuario teclado
      */
+   /* public void fueraPlazo(){
+        System.out.println("Prestamos fuera de plazo: ");
+        for (Prstamo p: prestamos) {
+            if(p.getFechaDev)
+        }
+    }*/
      public String solicitaDni() {
         Scanner sc= new Scanner(System.in);
         System.out.println("Teclea el dni del usuario:");
