@@ -1,8 +1,5 @@
-//Token GitHub     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
-// https://github.com/Hugoo-11/Biblioteca2025.git
 
 package org.educastur.hugoif.biblioteca2025;
-//PRUEBA1
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -24,6 +21,7 @@ public class Biblioteca2025 {
     public static void main(String[] args) {
         Biblioteca2025 b= new Biblioteca2025();
         b.cargaDatos();
+        b.fueraPlazo();
         b.menu();
     }
    
@@ -133,6 +131,8 @@ public class Biblioteca2025 {
             System.out.println("\t\t\t\t4 - LISTADOS PRESTAMOS");
             System.out.println("\t\t\t\t5 - LISTADOS PRESTAMOS HISTORICOS");
             System.out.println("\t\t\t\t6 - LISTADOS PRESTAMOS LIBRO(USUARIOS QUE LO LEEN");
+            System.out.println("\t\t\t\t7 - LIBRO MAS LEIDO");
+            System.out.println("\t\t\t\t8 - USUARIO MAS LECTOR");
             System.out.println("\t\t\t\t9 - SALIR");
             opcion= sc.nextInt();
             switch(opcion) {
@@ -141,7 +141,7 @@ public class Biblioteca2025 {
                     break;
                 }
                 case 2: {
-                    eliminarPrestamo();
+                    devolucion();
                     break;
                 }
                 case 3: {
@@ -160,13 +160,21 @@ public class Biblioteca2025 {
                    listaPrestamosLibro();
                     break;
                 }
+                case 7: {
+                    libroMasLeido();
+                    break;
+                }
+                case 8:{
+                    usuarioMasLector();
+                    break;
+                }
             }
         }while (opcion !=9);
     }
     
 //</editor-fold>
 
-     //<editor-fold defaultstate="collapsed" desc="GESTION LIBROS">
+    //<editor-fold defaultstate="collapsed" desc="GESTION LIBROS">
     
        private void nuevoLibro() {    
            String isbn, titulo, autor, genero;
@@ -294,7 +302,7 @@ public class Biblioteca2025 {
     }
  }
 
-    private void eliminarPrestamo() {
+    private void devolucion() {
         System.out.println("Identificación del usuario");
         String isbnLibro=solicitaIsbn();
          int pos=buscaPrestamo(solicitaDni(),isbnLibro);
@@ -338,7 +346,75 @@ public class Biblioteca2025 {
             System.out.println(p);
          }
     }
+    //</editor-fold>
     
+    //<editor-fold defaultstate="collapsed" desc="LISTADOS DE LAS AMPLIACIONES 1-2-3-4">
+    
+      private void libroMasLeido(){
+        ArrayList <Integer> contadoresLibros=new ArrayList();
+        int contador;
+        for (Libro l : libros) {
+            contador=0;
+            for (Prestamo p:prestamos) {
+                if (l==p.getLibroPrest()){
+                    contador++;
+                }
+            }
+            for (Prestamo p:prestamosHist) {
+                if (l==p.getLibroPrest()){
+                    contador++;
+                }
+            }
+            contadoresLibros.add(contador);
+        }
+        
+        int max=0;
+        for (int c:contadoresLibros){
+            if (c>max){
+                max=c;
+            }
+        }
+        System.out.println("El libro/s mas leido/s con " + max + " prestamos es/son: " );
+               
+        for (int i = 0; i < contadoresLibros.size(); i++) {
+            if (contadoresLibros.get(i)==max){
+                System.out.println(libros.get(i));
+            }
+        }
+    }
+    
+    private void usuarioMasLector(){
+        ArrayList <Integer> contadoresUsuarios=new ArrayList();
+        int contador;
+        for (Usuario u : usuarios) {
+            contador=0;
+            for (Prestamo p:prestamos) {
+                if (u==p.getUsuarioPrest()){
+                    contador++;
+                }
+            }
+            for (Prestamo p:prestamosHist) {
+                if (u==p.getUsuarioPrest()){
+                    contador++;
+                }
+            }
+            contadoresUsuarios.add(contador);
+        }
+        
+        int max=0;
+        for (int c:contadoresUsuarios){
+            if (c>max){
+                max=c;
+            }
+        }
+        System.out.println("Los usuarios/as mas lectores/as con " + max + " prestamos son: " );
+               
+        for (int i = 0; i < contadoresUsuarios.size(); i++) {
+            if (contadoresUsuarios.get(i)==max){
+                System.out.println(usuarios.get(i));
+            }
+        }
+    }
     private void listaPrestamosUsu(){
         String dni=solicitaDni();
         int pos= buscaDni(solicitaDni());
@@ -352,17 +428,19 @@ public class Biblioteca2025 {
                 if (p.getFechaDev().isBefore(LocalDate.now())){
                     System.out.print("Libro fuera de plazo: ");
                 }
-            }
+            
                 System.out.println(p);  
         }
         }
+        
         System.out.println("Prestamos devueltos por: "
             +usuarios.get(pos).getNombre());
                 for (Prestamo p : prestamosHist) {
-            if (p.getUsuarioPrest().getDni().equals(dni))
+            if (p.getUsuarioPrest().getDni().equals(dni)){
                 System.out.println(p); 
             }
-        
+            }
+        }
     }
     
     private void listaPrestamosLibro(){
@@ -393,14 +471,16 @@ public class Biblioteca2025 {
     
     /**
      * Método para solicitar por teclado el dni del usuario. Pendiente la validación.
-     * @return dni (String) del usuario teclado
+     * @return(String)dni del usuario teclado
      */
-   /* public void fueraPlazo(){
+     public void fueraPlazo(){
         System.out.println("Prestamos fuera de plazo: ");
-        for (Prstamo p: prestamos) {
-            if(p.getFechaDev)
+        for (Prestamo p: prestamos) {
+            if(p.getFechaDev().isBefore(LocalDate.now())){
+                    System.out.println(p);
+            }
         }
-    }*/
+    }
      public String solicitaDni() {
         Scanner sc= new Scanner(System.in);
         System.out.println("Teclea el dni del usuario:");
@@ -526,7 +606,13 @@ public class Biblioteca2025 {
         prestamos.add(new Prestamo(libros.get(6),usuarios.get(2), hoy,hoy.plusDays(15)));
         prestamos.add(new Prestamo(libros.get(2),usuarios.get(1), hoy,hoy.plusDays(15)));
     
-      
+        prestamosHist.add(new Prestamo(libros.get(0),usuarios.get(0), hoy.minusDays(20),hoy.minusDays(5)));
+        prestamosHist.add(new Prestamo(libros.get(2),usuarios.get(0), hoy.minusDays(20),hoy.minusDays(5)));
+        prestamosHist.add(new Prestamo(libros.get(7),usuarios.get(4), hoy.minusDays(20),hoy.minusDays(5)));
+        prestamosHist.add(new Prestamo(libros.get(5),usuarios.get(4), hoy.minusDays(20),hoy.minusDays(5)));
+        prestamosHist.add(new Prestamo(libros.get(1),usuarios.get(1), hoy.minusDays(20),hoy.minusDays(5)));
+        prestamosHist.add(new Prestamo(libros.get(7),usuarios.get(2), hoy.minusDays(20),hoy.minusDays(5)));
+        prestamosHist.add(new Prestamo(libros.get(6),usuarios.get(3), hoy.minusDays(20),hoy.minusDays(5)));
     }
 
 //</editor-fold>
