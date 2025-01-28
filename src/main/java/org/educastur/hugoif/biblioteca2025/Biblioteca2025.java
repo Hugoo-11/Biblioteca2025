@@ -30,7 +30,7 @@ public class Biblioteca2025 {
     //<editor-fold defaultstate="collapsed" desc="MENUS">
 
     //Método de Gulnat
-    private void mensaje() {
+    private static void mensaje() {
         System.out.println("Mi comentario");   
     }
     
