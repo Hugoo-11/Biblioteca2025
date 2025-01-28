@@ -28,6 +28,11 @@ public class Biblioteca2025 {
     }
    
     //<editor-fold defaultstate="collapsed" desc="MENUS">
+
+    //Método de Gulnat
+    private void mensaje() {
+        System.out.println("Mi comentario");   
+    }
     
      public void menu() {
         Scanner sc= new Scanner(System.in);
